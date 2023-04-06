@@ -1,0 +1,25 @@
+<label [for]="controlName" class="block text-gray-700 text-sm font-bold mb-2">{{
+  label
+}}</label>
+<input
+  type="text"
+  [formControlName]="controlName"
+  [id]="controlName"
+  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+/>
+<div
+  *ngIf="
+    formGroup.get(controlName)?.invalid &&
+    (formGroup.get(controlName)?.dirty || formGroup.get(controlName)?.touched)
+  "
+  class="text-red-500 text-xs italic"
+>
+  <ng-container *ngIf="(formGroup.get(controlName)?.errors)?.['required']">
+    <!-- {{ field.validations.find((v) => v.name === 'required')?.message }} -->
+    This feild is required
+  </ng-container>
+  <!-- <ng-container *ngIf="(formGroup.get(controlName)?.errors as any)?.minlength">
+    {{ field.validations.find((v) => v.name === 'minlength')?.message }}
+  </ng-container> -->
+  <!-- Add more validation messages if needed -->
+</div>

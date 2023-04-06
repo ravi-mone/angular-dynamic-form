@@ -1,31 +1,99 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { UserRegistrationComponent } from './app-dynamic-form.component';
+import { FormBuilderService } from './form-builder.service';
+import { FormFieldConfig } from './formfieldconfig.interface';
 
-describe('AppComponent', () => {
+describe('UserRegistrationComponent', () => {
+  let component: UserRegistrationComponent;
+  let fixture: ComponentFixture<UserRegistrationComponent>;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
+      declarations: [UserRegistrationComponent],
+      imports: [ReactiveFormsModule],
+      providers: [FormBuilderService],
     }).compileComponents();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'my-app'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('my-app');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+  beforeEach(() => {
+    fixture = TestBed.createComponent(UserRegistrationComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('my-app app is running!');
   });
+
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should have form initialized', () => {
+    expect(component.userRegistrationForm).toBeDefined();
+  });
+
+  it('should have form controls based on fieldsConfig', () => {
+    const fieldsConfig: FormFieldConfig[] = component.fieldsConfig;
+
+    fieldsConfig.forEach(field => {
+      expect(component.userRegistrationForm.contains(field.name)).toBe(true);
+    });
+  });
+
+  it('should not submit the form if invalid', () => {
+    spyOn(console, 'log');
+    component.onSubmit();
+    expect(console.log).toHaveBeenCalledWith('Form invalid');
+  });
+
+  it('should have a required Name field with minimum length 3', () => {
+    const nameControl = component.userRegistrationForm.controls.name;
+  
+    nameControl.setValue('');
+    expect(nameControl.valid).toBeFalsy();
+  
+    nameControl.setValue('A');
+    expect(nameControl.valid).toBeFalsy();
+  
+    nameControl.setValue('Ab');
+    expect(nameControl.valid).toBeFalsy();
+  
+    nameControl.setValue('Abc');
+    expect(nameControl.valid).toBeTruthy();
+  });
+  
+  it('should have a required Email field with correct email pattern', () => {
+    const emailControl = component.userRegistrationForm.controls.email;
+  
+    emailControl.setValue('');
+    expect(emailControl.valid).toBeFalsy();
+  
+    emailControl.setValue('test@example');
+    expect(emailControl.valid).toBeFalsy();
+  
+    emailControl.setValue('test@example.');
+    expect(emailControl.valid).toBeFalsy();
+  
+    emailControl.setValue('test@example.com');
+    expect(emailControl.valid).toBeTruthy();
+  });
+  
+  it('should have a required Password field with minimum length 8 and specific pattern', () => {
+    const passwordControl = component.userRegistrationForm.controls?.['password'];
+  
+    passwordControl.setValue('');
+    expect(passwordControl.valid).toBeFalsy();
+  
+    passwordControl.setValue('short');
+    expect(passwordControl.valid).toBeFalsy();
+  
+    passwordControl.setValue('onlylowercase');
+    expect(passwordControl.valid).toBeFalsy();
+  
+    passwordControl.setValue('WithUppercase');
+    expect(passwordControl.valid).toBeFalsy();
+  
+    passwordControl.setValue('WithNumber1');
+    expect(passwordControl.valid).toBeFalsy();
+  });
+  
 });
